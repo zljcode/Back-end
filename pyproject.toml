@@ -1,0 +1,16 @@
+[project]
+name = "back-end"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "fastapi==0.115.14",
+    "pydantic==2.8.2",
+    "uvicorn[standard]==0.30.6",
+]
+
+[dependency-groups]
+dev = [
+    "black>=24.8.0",
+]
