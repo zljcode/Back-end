@@ -1,5 +1,6 @@
 from copy import deepcopy
 from datetime import datetime, timezone, timedelta
+import ipaddress
 
 from fastapi import HTTPException
 
@@ -11,7 +12,7 @@ def get_visitor_profile(scenario: ScenarioType = DEFAULT_SCENARIO) -> VisitorRes
     profile = _get_profile_or_raise(scenario)
     return VisitorResponse(**profile)
 
-
+# 建立访客信息
 def create_visitor_profile(
     payload: VisitorRequest, scenario: ScenarioType = DEFAULT_SCENARIO,client_ip :str ="unknown"
 ) -> VisitorResponse:
@@ -81,14 +82,18 @@ def _current_request_time() -> str:
     return datetime.now(shanghai_tz).isoformat()
 
 # 拿到真实ip进行返回
-def _build_network_from_ip(client_ip:str,profile :dict) -> dict:
+def _build_network_from_ip(client_ip:str,profile :dict) -> dict: 
     network = deepcopy(profile["network"])
+    
+    vpn_result = _detect_vpn(client_ip)
+    
     network["ip"] = client_ip
     network["is_vpn"] = None
     network["vpn_confidence"] = "unknown"
+    network["ip_type"] = vpn_result["ip_type"]
     return network
 
-
+#  这里后续接入真实可用的找到vpn的东西
 def _detect_vpn(client_ip: str) -> dict:
     if client_ip in {"127.0.0.1", "::1", "unknown"}:
         return {
@@ -96,9 +101,28 @@ def _detect_vpn(client_ip: str) -> dict:
             "vpn_confidence": "unknown",
             "ip_type": None,
         }
-
-    return {
+        
+    
+    try:
+        ip_obj = ipaddress.ip_address(client_ip)
+    except ValueError:
+     return {
         "is_vpn": None,
         "vpn_confidence": "unknown",
         "ip_type": None,
     }
+    # 本机回环地址 私网地址,保留地址,非法IP字符串
+    if ip_obj.is_private or ip_obj.is_loopback or ip_obj.is_reserved or ip_obj.is_link_local:
+        return {
+        "is_vpn": None,
+        "vpn_confidence": "unknown",
+        "ip_type": None,
+    }
+   
+    return {
+        "is_vpn": None,
+        "vpn_confidence": "unknown",
+        "ip_type": None,
+    }            
+
+

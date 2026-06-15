@@ -1,209 +1,249 @@
-# 2026-06-12 Demo 项目开发进度记录
+# Demo 项目统一开发进度记录
 
-## 一、文档依据
+## 文档说明
 
-本次进度整理基于以下两份项目规划文档：
+这份文档用于统一记录 Demo 项目的前后端开发进度。
+
+整理依据包括：
 
 - `/mnt/d/ZephyrNote/学习笔记/g2-service项目学习/demo项目最大效益学习流程/最终展示字段说明及后端返回结构.md`
 - `/mnt/d/ZephyrNote/学习笔记/g2-service项目学习/demo项目最大效益学习流程/demo项目最大效益学习流程.md`
+- `/demo/Front-end/docs/development-progress.md`
 
-本次整理同时结合了今天的前后端实际开发结果。
+当前文档已经吸收前端阶段记录，并结合后端当前实际代码状态进行合并更新。
 
-## 二、今日完成内容
+## 2026-06-12 第一阶段：前端 Demo 第一版
 
-### 1. 前端展示链已完成第一阶段
+### 本阶段目标
 
-- 已完成前端静态展示页面。
-- 已完成访客风险面板主视图，包括：
-  - `visitor_id`
-  - `risk_level`
-  - `risk_code`
-  - `risk_summary`
-  - 访问摘要区
-  - 技术信号区
-  - 原始风控摘要区
-- 已支持 `pass / review / reject` 三种场景切换。
-- 已完成浏览器基础信号采集工具，当前可采集并组织以下字段：
-  - `browser_name`
-  - `browser_version`
-  - `os_name`
-  - `device_type`
+先完成一个可运行、可展示的浏览器访客风险面板，用 mock 数据跑通展示链路，后续再逐步接入 Python 后端与真实风控接口。
+
+### 已完成内容
+
+- 创建静态前端项目结构。
+- 新增页面入口：
+  - `index.html`
+  - `src/main.js`
+- 新增主视图组件：
+  - `src/components/visitorDashboard.js`
+- 新增 mock 数据：
+  - `src/data/mockVisitor.js`
+- 新增前端数据服务层：
+  - `src/services/visitorService.js`
+- 新增浏览器信号采集工具：
+  - `src/utils/browserSignals.js`
+- 新增主样式与基础工具函数。
+
+### 当前页面能力
+
+- 展示 `visitor_id`
+- 展示 `risk_level`
+- 展示 `risk_code`
+- 展示 `risk_summary`
+- 展示访问摘要：
+  - IP
+  - 浏览器名称与版本
+  - 操作系统
+  - 设备类型
+  - 匿名模式状态
+  - VPN / 代理状态
+- 展示技术信号：
+  - `user_agent`
   - `language`
   - `timezone`
   - `platform`
   - `screen_resolution`
   - `hardware_concurrency`
   - `device_memory`
-  - `user_agent`
-  - `canvas_fingerprint`
   - `webgl_vendor`
   - `webgl_renderer`
 
-### 2. 后端统一接口已完成第一版
+## 2026-06-12 第二阶段：后端接口第一版
 
-- 已创建独立 FastAPI Demo 后端。
-- 已完成基础应用入口与路由注册。
-- 已完成：
+### 本阶段目标
+
+建立一个独立的 FastAPI Demo 后端，统一前端展示所需返回结构，先用 mock 数据打通后端接口层。
+
+### 已完成内容
+
+- 创建独立 FastAPI 后端项目。
+- 完成基础应用入口与路由注册。
+- 完成接口：
   - `GET /api/health`
   - `GET /api/visitor`
   - `POST /api/visitor`
-- 已接入 CORS，允许前端本地开发地址访问。
-
-### 3. 前后端契约已基本对齐
-
-- 已按照规划文档中的目标结构建立统一返回 DTO。
-- 已完成 Pydantic 响应模型：
+- 接入 CORS，允许本地前端开发地址访问。
+- 建立统一返回 DTO：
   - `VisitorResponse`
   - `Network`
   - `Environment`
   - `Signals`
   - `Meta`
-- 已完成请求模型：
+- 建立统一请求 DTO：
   - `VisitorRequest`
   - `VisitorEnvironmentInput`
   - `VisitorSignalsInput`
-- 已抽出 `ScenarioType`，统一 `pass / review / reject` 的类型约束。
+- 抽出 `ScenarioType`，统一 `pass / review / reject` 约束。
 
-### 4. 后端已具备接收前端信号并回填响应的能力
+## 2026-06-15 第三阶段：前后端联调
 
-- 当前 `POST /api/visitor` 已可接收前端上传的 `environment` 与 `signals`。
-- 后端当前会基于 mock 场景做深拷贝，并将前端上传字段覆盖到响应结果中。
-- 已形成初步 service 分层：
-  - 路由层负责 HTTP 接口
-  - service 层负责 profile 获取与字段合并
-  - data 层负责 mock 数据
-  - schema 层负责请求与响应结构
+### 本阶段完成内容
 
-### 5. 阶段性成果已归档到 GitHub
+- 前端主数据链已从本地 mock 主流程切换为请求后端 `/api/visitor`。
+- 浏览器环境信号会通过 `POST /api/visitor` 发送给后端。
+- 后端会返回与前端页面 DTO 对齐的结构，前端展示层无需推翻重写。
+- 前后端联调环境下，本地页面可正确请求本地后端。
 
-- 后端阶段性提交已完成并推送。[zljcode/Back-end: 获取指纹，评估风险后端服务](https://github.com/zljcode/Back-end)
-- 前端阶段性提交已完成并推送。[zljcode/Front-end: 获取指纹，评估风险前端服务](https://github.com/zljcode/Front-end)
+### 浏览器信号链路
 
-## 三、当前项目所处阶段
+当前前端已能采集并上传以下 `environment` 字段：
 
-结合原始规划文档，当前项目大致处于以下位置：
+- `browser_name`
+- `browser_version`
+- `os_name`
+- `device_type`
+- `language`
+- `timezone`
+- `platform`
+- `screen_resolution`
+- `hardware_concurrency`
+- `device_memory`
+
+当前前端已能采集并上传以下 `signals` 字段：
+
+- `user_agent`
+- `canvas_fingerprint`
+- `webgl_vendor`
+- `webgl_renderer`
+
+### 当前后端处理方式
+
+- `GET /api/visitor`
+  - 仍保留场景 mock，用于 `pass / review / reject` 展示。
+- `POST /api/visitor`
+  - `visitor_id / risk_level / risk_code / risk_summary / network` 仍来自后端场景数据或占位逻辑。
+  - `environment / signals` 已切换为以前端实报为主构造返回结果。
+  - `meta.request_time` 由后端动态生成。
+
+## 2026-06-15 第四阶段：匿名模式与技术信号增强
+
+### 已完成内容
+
+- 已为前端接入匿名模式启发式检测逻辑。
+- 前端会将 `is_incognito` 和 `incognito_confidence` 上报后端。
+- 后端会将匿名模式相关字段返回给前端页面。
+- 页面摘要区已开始展示真实匿名模式检测结果，而不是固定 mock 值。
+- `Canvas Fingerprint`、`WebGL Vendor`、`WebGL Renderer` 已进入真实采集链路。
+
+### 当前展示语义
+
+- `Likely Incognito`：检测到较强匿名模式信号。
+- `Not Detected`：当前规则没有命中明显匿名模式特征。
+- `Unknown`：当前环境没有足够强的匿名模式证据。
+
+## 2026-06-15 第五阶段：VPN 检测后端能力预留
+
+### 已完成内容
+
+- 后端已在路由层接入 `Request`。
+- 已实现客户端 IP 提取逻辑：
+  - 优先读取 `X-Forwarded-For`
+  - 其次读取 `X-Real-IP`
+  - 最后回退到 `request.client.host`
+- 后端 `POST /api/visitor` 已能将 `client_ip` 写入 `network.ip`。
+- 已预留 `_detect_vpn(client_ip)` 函数。
+- 当前已完成基础保底判断：
+  - `127.0.0.1`
+  - `::1`
+  - 私网 IP
+  - 保留地址
+  - 非法 IP 字符串
+  以上情况统一返回 `unknown`
+
+### 当前结论
+
+- VPN / 代理识别本质上依赖外部 IP intelligence、风控结果或公网 IP 情报库。
+- 当前项目已完成“后端检测入口与返回结构预留”，但尚未具备真实 VPN 识别能力。
+- 当前阶段不会继续手写复杂 VPN 判断规则，后续应通过外部能力或 `risk_query` 结果接入。
+
+## 当前整体状态
 
 ### 已完成
 
-- 第 2 阶段：小 Python 后端第一版
-- 第 3 阶段：前端页面第一版
-- 前后端稳定 DTO 基本建立
-- 前端开始向后端发送浏览器基础信号
+- 前端页面第一版完成
+- 后端 FastAPI 第一版完成
+- 前后端 DTO 基本建立
+- 前后端联调已打通
+- 浏览器基础信号已从前端上传到后端
+- `environment / signals` 已改为以前端实报为主
+- 匿名模式启发式检测已接入
+- VPN 检测后端入口已预留
 
-### 部分完成
+### 当前仍为 mock 或占位的部分
 
-- 前后端联调链路已具备代码基础，但仍需要完整跑通与验证
-- 浏览器信号采集已开始，但仍属于基础版本
-
-### 尚未开始或尚未完成
-
-- 第 4 阶段：真实 `risk_query` 接入
-- 第 6 阶段：匿名模式启发式判断
-- 第 6 阶段：VPN / 代理判断
-- 第 7 阶段：完整 `client_report -> token_query`
-
-## 四、当前可确认的能力边界
-
-### 已具备的能力
-
-- 页面可以展示完整 Demo 结构
-- 后端可以稳定返回符合展示契约的数据
-- 前端可以将基础浏览器环境信息发送给后端
-- 后端可以用前端上传的环境字段覆盖 mock 返回结果
-
-### 当前仍是 mock 的部分
-
+- `visitor_id`
 - `risk_level`
 - `risk_code`
 - `risk_summary`
-- `is_incognito`
-- `incognito_confidence`
-- `is_vpn`
-- `vpn_confidence`
-- `ip_type`
-- `visitor_id`
+- `network.ip_type`
+- `network.is_vpn`
+- `network.vpn_confidence`
 
 ### 当前尚未进入真实业务判断的部分
 
-- 风险码来源仍非真实风控接口
-- 后端尚未接入 `sign_token` 生成
-- 后端尚未调用真实 `risk_query`
-- 前端尚未做匿名模式启发式检测
-- 后端尚未做基于风控结果的 VPN/代理映射
+- 真实 `risk_query`
+- `sign_token` 生成
+- `app_id / private_key` 配置接入
+- 基于真实风控结果的 VPN / 代理映射
+- 完整 `client_report -> token_query`
 
-## 五、当前存在的剩余问题
+## 当前能力边界
 
-### 1. 前后端联调还需要做一次完整验证
+### 已具备的能力
 
-- 后端服务启动方式需要统一使用 `uvicorn app.main:app --reload --host 0.0.0.0 --port 8000`
-- 需要验证 `POST /api/visitor` 在页面刷新、场景切换、错误情况下的表现
+- 页面可展示完整 Demo 结构
+- 页面可展示真实浏览器环境字段
+- 后端可接收并返回前端实报的浏览器环境与信号
+- 后端可提取请求来源 IP
+- 本地联调环境下可在 `network.ip` 中展示真实请求来源地址
 
-### 2. 前端 `visitorService` 仍需要进一步收口
+### 当前限制
 
-- 当前数据流已经指向后端接口
-- 但错误处理与是否保留本地 fallback 仍需要做最终决策
-- `API_BASE_URL` 当前是直接写死，后续应整理成可配置项
+- 本地联调时，`network.ip` 显示 `127.0.0.1` 或 `::1` 属于正常现象，不代表公网真实 IP。
+- VPN 判断当前只能停留在 `unknown` 三态兜底。
+- 风险结果仍然不是权威风控输出。
 
-### 3. 真实风控链路尚未接入
+## 后续开发计划
 
-- 尚未读取 `app_id`
-- 尚未读取 `private_key`
-- 尚未生成 `gen_time`
-- 尚未生成 `sign_token`
-- 尚未调用真实 `risk_query`
-- 尚未将真实风控结果映射到 Demo DTO
+### 第一优先级：收紧当前联调版本
 
-### 4. 浏览器信号仍属于基础版
+1. 再做一次前后端联调回归验证。
+2. 检查页面展示值是否全部来自后端返回，而非前端残留兜底。
+3. 收一下前端 `visitorService` 的错误处理与配置项管理。
 
-- 当前重点仍是基础环境字段
-- `canvas_fingerprint`、`webgl_vendor`、`webgl_renderer` 已有字段位，但还没有更深入处理
-- 尚未补充匿名模式检测相关信号
-- 尚未补充更接近真实风控链路所需的指纹上下文
+### 第二优先级：接入真实 `risk_query`
 
-## 六、后续剩余开发计划
+1. 梳理 `risk_query` 请求参数。
+2. 接入 `app_id`、`private_key`。
+3. 完成 `sign_token` 生成。
+4. 调用真实 `risk_query`。
+5. 将真实 `risk_level / risk_code` 映射到当前 DTO。
 
-建议仍然按照原始规划文档的顺序推进，避免过早进入完整复杂链路。
+### 第三优先级：增强状态判断
 
-### 第一优先级：跑通前后端联调
+1. 完善匿名模式检测规则。
+2. 在接入外部能力或 `risk_query` 后再做 VPN / 代理判断。
+3. 继续增强浏览器信号采集，但保持 DTO 稳定。
 
-1. 启动后端 FastAPI 服务
-2. 启动前端静态服务
-3. 验证页面实际请求 `POST /api/visitor`
-4. 验证前端上传信号能够真实体现在后端返回结果中
-5. 修正联调过程中暴露的请求字段、响应字段和错误处理问题
+### 第四优先级：挑战完整业务链路
 
-### 第二优先级：收紧当前 Demo 第一版
-
-1. 统一前端错误处理策略
-2. 统一前端配置项管理
-3. 补一次后端运行说明与启动说明
-4. 补最小联调验证记录
-
-### 第三优先级：进入真实 `risk_query`
-
-1. 梳理 `risk_query` 调用所需参数
-2. 完成 `sign_token` 生成逻辑
-3. 在后端接入真实 `risk_query`
-4. 将真实 `risk_level` 和 `risk_code` 映射到当前响应结构
-5. 保持前端页面结构不变，只替换数据来源
-
-### 第四优先级：增强浏览器信号与状态判断
-
-1. 补匿名模式启发式检测
-2. 补更完整的浏览器端信号采集
-3. 结合真实风控结果处理 VPN / 代理状态
-4. 完善 `incognito_confidence`、`vpn_confidence` 三态表达
-
-### 第五优先级：挑战完整真实链路
-
-1. 回头补读 `g2-service` 核心调用链
+1. 回头补读 `g2-service` 主链路。
 2. 研究 `client_report`
 3. 研究 `token_query`
 4. 尝试完整 `client_report -> token_query`
 
-## 七、当前结论
+## 当前结论
 
-截至 `2026-06-12`，本项目已经完成从“纯前端 mock 展示”到“具备后端接口、统一 DTO、可接收浏览器基础信号”的阶段性推进。
+截至 `2026-06-15`，项目已经从“纯前端 mock 页面”推进到“前后端联调完成、浏览器信号可真实上报、匿名模式链路已接入、VPN 检测后端入口已预留”的阶段。
 
-当前最合理的下一步不是直接进入完整风控主链路，而是先把前后端联调跑通，再在这个稳定壳子上逐步替换成真实 `risk_query` 和更完整的浏览器指纹能力。
-
+当前最合理的下一步不是继续硬写本地 VPN 识别，而是先把现有联调版本收稳，然后尽快进入真实 `risk_query` 接入阶段。
