@@ -3,6 +3,21 @@ from app.schemas.visitor import ScenarioType
 
 DEFAULT_SCENARIO:ScenarioType = "pass"
 
+# 基础 mock 
+BASIC_MOCK = {
+        "visitor_id": "GEE3-01-a8f4c2e9b170",
+        "risk_level": "pass",
+        "risk_code": [],
+        "risk_summary": "Trusted",
+        "network": {
+            "ip": "127.0.0.1",
+            "ip_type": None,
+            "is_vpn": None,
+            "vpn_confidence": "unknown",
+        }
+}
+
+# 全部mock
 VISITOR_MOCK = {
     "pass": {
         "visitor_id": "GEE3-01-a8f4c2e9b170",

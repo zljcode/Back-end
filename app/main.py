@@ -1,14 +1,16 @@
+import __main__
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.api.router import api_router
 
+# uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 
 app = FastAPI(
     title="Visitor Risk Demo API",
     version="0.1.0",
 )
 
-# 开启跨域访问
+# 开启跨域访问  前端访问后端
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
@@ -21,3 +23,8 @@ app.add_middleware(
 )
 
 app.include_router(api_router, prefix="/api")
+
+
+# if __name__ == __main__:
+    
+    
