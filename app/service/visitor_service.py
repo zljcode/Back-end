@@ -13,11 +13,12 @@ def get_visitor_profile(scenario: ScenarioType = DEFAULT_SCENARIO) -> VisitorRes
 
 
 def create_visitor_profile(
-    payload: VisitorRequest, scenario: ScenarioType = DEFAULT_SCENARIO
+    payload: VisitorRequest, scenario: ScenarioType = DEFAULT_SCENARIO,client_ip :str ="unknown"
 ) -> VisitorResponse:
     profile = _get_profile_or_raise(scenario)
     profile_data = deepcopy(profile)
 
+    profile_data["network"] = _build_network_from_ip(client_ip,profile)
     profile_data["environment"] = _build_environment_from_payload(payload)
     profile_data["signals"] = _build_signals_from_payload(payload)
     profile_data["meta"] = {
@@ -51,8 +52,10 @@ def _build_environment_from_payload(payload: VisitorRequest) -> dict:
         "browser_version": environment.browser_version if environment else "unknown",
         "os_name": environment.os_name if environment else "unknown",
         "device_type": environment.device_type if environment else "Desktop",
-        "is_incognito": None,
-        "incognito_confidence": "unknown",
+        "is_incognito": environment.is_incognito if environment else None,
+        "incognito_confidence": (
+    environment.incognito_confidence if environment and environment.incognito_confidence else "unknown"
+),
         "language": environment.language if environment else "unknown",
         "timezone": environment.timezone if environment else "unknown",
         "platform": environment.platform if environment else "unknown",
@@ -76,3 +79,26 @@ def _build_signals_from_payload(payload: VisitorRequest) -> dict:
 def _current_request_time() -> str:
     shanghai_tz = timezone(timedelta(hours=8))
     return datetime.now(shanghai_tz).isoformat()
+
+# 拿到真实ip进行返回
+def _build_network_from_ip(client_ip:str,profile :dict) -> dict:
+    network = deepcopy(profile["network"])
+    network["ip"] = client_ip
+    network["is_vpn"] = None
+    network["vpn_confidence"] = "unknown"
+    return network
+
+
+def _detect_vpn(client_ip: str) -> dict:
+    if client_ip in {"127.0.0.1", "::1", "unknown"}:
+        return {
+            "is_vpn": None,
+            "vpn_confidence": "unknown",
+            "ip_type": None,
+        }
+
+    return {
+        "is_vpn": None,
+        "vpn_confidence": "unknown",
+        "ip_type": None,
+    }

@@ -65,6 +65,8 @@ class VisitorEnvironmentInput(BaseModel):
     screen_resolution: Optional[str] = None
     hardware_concurrency: Optional[Union[int, str]] = None
     device_memory: Optional[Union[int, str]] = None
+    is_incognito:Optional[bool] = None
+    incognito_confidence : Optional[str] = None
 
 
 # 访问标志输入
