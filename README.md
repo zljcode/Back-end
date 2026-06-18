@@ -1,21 +1,21 @@
 # Demo Back-end
 
-FastAPI backend scaffold for the visitor-risk demo. The POST visitor API
-receives the `gee_token` produced by the front-end GeeGuard SDK and calls
-g2-service `GeeTokenQuery` to expose anonymous mode, VPN, IP type, risk level,
-risk code, and fingerprint ids.
+这是一个用于访客风险展示 Demo 的 FastAPI 后端。前端 GeeGuard SDK 产出
+`gee_token` 后，会调用本项目的 `POST /api/visitor` 接口；后端再继续请求
+g2-service 的 `GeeTokenQuery`，把匿名模式、VPN、IP 类型、风险等级、风险码、
+指纹信息整合后返回给前端页面。
 
-## Structure
+## 项目结构
 
-- `app/main.py`: FastAPI application entry
-- `app/api/routes/health.py`: basic health route
-- `app/service/gee_token_query_service.py`: signed GeeTokenQuery client
-- `requirements.txt`: Python dependencies
+- `app/main.py`：FastAPI 应用入口
+- `app/api/routes/health.py`：健康检查接口
+- `app/service/gee_token_query_service.py`：GeeTokenQuery 调用封装与签名生成
+- `requirements.txt`：Python 依赖列表
 
-## G2 Service
+## G2 Service 配置
 
-Create a local `.env` from `.env.example`, or export the variables in your shell.
-Do not commit real credentials.
+先根据 `.env.example` 创建本地 `.env`，或者直接在 shell 中导出环境变量。
+真实凭证不要提交到 git。
 
 ```bash
 export G2_GEE_TOKEN_QUERY_URL=http://127.0.0.1:9999/g5/api/v1/token_query
@@ -23,15 +23,14 @@ export G2_APP_ID=your_app_id
 export G2_PRIVATE_KEY=your_private_key
 ```
 
-`G2_PRIVATE_KEY` must stay out of git. The browser-side GeeGuard `appId` used by
-the front-end SDK is a public identifier, not a replacement for the private
-key.
+`G2_PRIVATE_KEY` 必须保留在本地环境中，不能写入仓库。前端 GeeGuard SDK 使用的
+`appId` 属于公开标识，它不能替代后端私钥。
 
-The front-end GeeGuard SDK handles `pre_load -> client_report` and passes the
-returned `gee_token` to this backend. When no token is supplied, the backend
-returns local mock data.
+当前链路中，前端 GeeGuard SDK 会先完成 `pre_load -> client_report`，然后把返回
+的 `gee_token` 传给本后端。如果请求里没有 `gee_token`，后端会回退到本地 mock
+数据，保证页面仍然可展示。
 
-`token_query` payload:
+`token_query` 请求体示例：
 
 ```json
 {
@@ -47,7 +46,7 @@ returns local mock data.
 }
 ```
 
-## Run
+## 启动方式
 
 ```bash
 python -m venv .venv
@@ -56,7 +55,7 @@ pip install -r requirements.txt
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Example:
+请求示例：
 
 ```bash
 curl -X POST 'http://127.0.0.1:8000/api/visitor' \
