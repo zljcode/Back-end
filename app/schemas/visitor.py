@@ -7,7 +7,7 @@ ScenarioType = Literal["pass", "review", "reject"]
 
 class Network(BaseModel):
     ip: str
-    ip_type: Optional[str]
+    ip_type: Optional[Union[int, str]]
     is_vpn: Optional[bool]
     vpn_confidence: Literal["detected", "not_detected", "unknown"]
 
@@ -33,23 +33,39 @@ class Environment(BaseModel):
 
 class Signals(BaseModel):
     user_agent: str  # 浏览器标识符
-    canvas_fingerprint: Optional[str]  # 在让浏览器在 Canvas 上绘制图形，不同设备/驱动渲染结果有细微差异，对结果做哈希得到的指纹值。
+    canvas_fingerprint: Optional[
+        str
+    ]  # 在让浏览器在 Canvas 上绘制图形，不同设备/驱动渲染结果有细微差异，对结果做哈希得到的指纹值。
     webgl_vendor: Optional[str]  # GPU厂商的名称,
     webgl_renderer: Optional[str]  # GPU具体型号
 
 
 class Meta(BaseModel):
     request_time: str
+    client_report_used: bool = False
+    client_report_status: str = "skipped"
+    geetoken_query_used: bool = False
+    geetoken_query_status: str = "skipped"
+    token_source: str = "none"
+
+
+class Fingerprint(BaseModel):
+    local_id: Optional[str] = None
+    root_id: Optional[str] = None
+    sign: Optional[str] = None
+    server_ts: Optional[int] = None
+    client_ts: Optional[int] = None
 
 
 class VisitorResponse(BaseModel):
     visitor_id: str
     risk_level: ScenarioType
-    risk_code: List[str]
+    risk_code: List[Union[int, str]]
     risk_summary: str
     network: Network
     environment: Environment
     signals: Signals
+    fingerprint: Optional[Fingerprint] = None
     meta: Meta
 
 
@@ -65,8 +81,8 @@ class VisitorEnvironmentInput(BaseModel):
     screen_resolution: Optional[str] = None
     hardware_concurrency: Optional[Union[int, str]] = None
     device_memory: Optional[Union[int, str]] = None
-    is_incognito:Optional[bool] = None
-    incognito_confidence : Optional[str] = None
+    is_incognito: Optional[bool] = None
+    incognito_confidence: Optional[str] = None
 
 
 # 访问标志输入
@@ -79,5 +95,7 @@ class VisitorSignalsInput(BaseModel):
 
 # 请求模型 前端收集的数据
 class VisitorRequest(BaseModel):
+    gee_token: Optional[str] = None
+    scene: Optional[str] = None
     environment: Optional[VisitorEnvironmentInput] = None
     signals: Optional[VisitorSignalsInput] = None
